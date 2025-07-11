@@ -51,7 +51,15 @@
 
           <hr />
 
-          <h4>Coffee</h4>
+          <div class="row mb-4">
+            <div class="col-8 align-self-center">
+              <h4>Coffee</h4>
+            </div>
+
+            <div class="col-4">
+              <button type="button" class="btn btn-primary btn-lg w-100 py-4">Add</button>
+            </div>
+          </div>
 
           <div class="row mb-4">
             <div class="col-8">
@@ -80,7 +88,15 @@
 
           <hr />
 
-          <h4>Water</h4>
+          <div class="row mb-4">
+            <div class="col-8 align-self-center">
+              <h4>Water</h4>
+            </div>
+
+            <div class="col-4">
+              <button type="button" class="btn btn-primary btn-lg w-100 py-4">Add</button>
+            </div>
+          </div>
 
           <div class="row mb-4">
             <div class="col-8">
