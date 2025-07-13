@@ -1,21 +1,37 @@
+<script lang="ts" setup>
+import MenuButton from '@/components/MenuButton.vue'
+
+const items = [
+  {
+    key: 'espresso',
+    value: 'Espresso',
+  },
+  {
+    key: 'double_espresso',
+    value: 'Double Espresso',
+  },
+  {
+    key: 'ristretto',
+    value: 'Ristretto',
+  },
+  {
+    key: 'americano',
+    value: 'Americano',
+  },
+] as const
+</script>
+
 <template>
   <h4>Select Coffee To Brew</h4>
 
   <div class="row mb-4">
-    <div class="col-12 col-md-6 mb-4">
-      <button type="button" class="btn btn-primary btn-lg w-100 py-4">Espresso</button>
-    </div>
-
-    <div class="col-12 col-md-6 mb-4">
-      <button type="button" class="btn btn-primary btn-lg w-100 py-4">Double Espresso</button>
-    </div>
-
-    <div class="col-12 col-md-6">
-      <button type="button" class="btn btn-primary btn-lg w-100 py-4">Ristretto</button>
-    </div>
-
-    <div class="col-12 col-md-6">
-      <button type="button" class="btn btn-primary btn-lg w-100 py-4">Americano</button>
+    <div
+      v-for="item in items"
+      :key="item.key"
+      class="col-12 col-md-6"
+      :class="{ 'mb-4': !['ristretto', 'americano'].includes(item.key) }"
+    >
+      <MenuButton :item />
     </div>
   </div>
 </template>
