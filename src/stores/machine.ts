@@ -5,6 +5,7 @@ import type { MachineState } from '@/types/MachineState.ts'
 import type { MachineStatusResponseData } from '@/types/MachineStatusResponseData.ts'
 import type { BrewCoffeeResponseData } from '@/types/BrewCoffeeResponseData.ts'
 import type { AxiosErrorResponse } from '@/types/AxiosErrorResponse.ts'
+import type { Container } from '@/types/Container.ts'
 
 export const useMachineStore = defineStore('machine', {
   state: (): MachineState => ({
@@ -13,6 +14,7 @@ export const useMachineStore = defineStore('machine', {
     recipes: [],
     containers: [],
     infoMessage: null,
+    info: {},
     errorMessage: null,
     errors: [],
   }),
@@ -31,7 +33,27 @@ export const useMachineStore = defineStore('machine', {
 
         this.recipes = data.data.recipes
         this.containers = data.data.containers
+
+        const containerInfo = (type: string) => {
+          const container = (this.containers || []).find(
+            (container: Container) => container.type === type,
+          )
+
+          return container
+            ? { quantity: container.quantity, unitLabel: container.unit.label }
+            : { quantity: 0, unitLabel: '' }
+        }
+
+        const coffeeInfo = containerInfo('coffee')
+        const waterInfo = containerInfo('water')
+
         this.infoMessage = data.message
+        this.info = {
+          coffee: [
+            `There are ${coffeeInfo.quantity}${coffeeInfo.unitLabel} in the coffee container.`,
+          ],
+          water: [`There are ${waterInfo.quantity}${waterInfo.unitLabel} in the water container.`],
+        }
       } catch (error: unknown) {
         throw error
       } finally {
@@ -59,6 +81,8 @@ export const useMachineStore = defineStore('machine', {
               'data.message',
               'Unable to brew coffee. Please try again.',
             )
+
+            console.log(errorResponse.data.errors)
 
             this.errors = _.get(errorResponse, 'data.errors', [])
 
