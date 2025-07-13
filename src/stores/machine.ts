@@ -61,6 +61,24 @@ export const useMachineStore = defineStore('machine', {
 
         return response
       } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'isAxiosError' in error) {
+          const axiosError = error as AxiosErrorResponse
+
+          if (axiosError.isAxiosError) {
+            const errorResponse = axiosError.response
+
+            this.errorMessage = _.get(
+              errorResponse,
+              'data.message',
+              'Unable to check machine status. Please try again.',
+            )
+
+            this.errors = _.get(errorResponse, 'data.errors', [])
+          }
+        } else {
+          this.errorMessage = 'An unexpected error occurred. Please try again later.'
+        }
+
         throw error
       } finally {
         this.isCheckingStatus = false
