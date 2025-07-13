@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import UseContainerField from '@/components/UseContainerField.vue'
+import RefillContainerField from '@/components/RefillContainerField.vue'
 </script>
 
 <template>
@@ -18,12 +19,6 @@ import UseContainerField from '@/components/UseContainerField.vue'
   </div>
 
   <div class="row mb-4">
-    <div class="col-8">
-      <input type="number" class="form-control py-4" placeholder="Enter quantity" />
-    </div>
-
-    <div class="col-4">
-      <button type="button" class="btn btn-primary btn-lg w-100 py-4">Refill</button>
-    </div>
+    <RefillContainerField />
   </div>
 </template>
