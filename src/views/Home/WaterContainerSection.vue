@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import UseContainerField from '@/components/UseContainerField.vue'
 import RefillContainerField from '@/components/RefillContainerField.vue'
+
+const type = 'water'
 </script>
 
 <template>
@@ -15,7 +17,7 @@ import RefillContainerField from '@/components/RefillContainerField.vue'
   </div>
 
   <div class="row mb-4">
-    <UseContainerField />
+    <UseContainerField :type />
   </div>
 
   <div class="row">
