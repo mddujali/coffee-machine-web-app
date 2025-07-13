@@ -11,10 +11,13 @@ export const useMachineStore = defineStore('machine', {
   state: (): MachineState => ({
     isCheckingStatus: false,
     isBrewingCoffee: false,
+    isSettingContainer: false,
     recipes: [],
     containers: [],
     infoMessage: null,
     info: {},
+    successMessage: null,
+    details: [],
     errorMessage: null,
     errors: [],
   }),
@@ -23,9 +26,7 @@ export const useMachineStore = defineStore('machine', {
     async checkStatus(): Promise<void> {
       this.isCheckingStatus = true
 
-      this.infoMessage = null
-      this.errorMessage = null
-      this.errors = []
+      this.clearAlerts()
 
       try {
         const response = await api.get('/machine/status')
@@ -64,11 +65,13 @@ export const useMachineStore = defineStore('machine', {
     async brewCoffee(type: string): Promise<void> {
       this.isBrewingCoffee = true
 
+      this.clearAlerts()
+
       try {
         const response = await api.post('/machine/brew-coffee', { type })
         const { data }: { data: BrewCoffeeResponseData } = response
 
-        console.log(data)
+        this.successMessage = data.message
       } catch (error: unknown) {
         if (error && typeof error === 'object' && 'isAxiosError' in error) {
           const axiosError = error as AxiosErrorResponse
@@ -82,8 +85,6 @@ export const useMachineStore = defineStore('machine', {
               'Unable to brew coffee. Please try again.',
             )
 
-            console.log(errorResponse.data.errors)
-
             this.errors = _.get(errorResponse, 'data.errors', [])
 
             return
@@ -96,6 +97,63 @@ export const useMachineStore = defineStore('machine', {
       } finally {
         this.isBrewingCoffee = false
       }
+    },
+
+    async useContainer(id: number, type: string): Promise<void> {
+      this.isSettingContainer = true
+
+      this.clearAlerts()
+
+      try {
+        const response = await api.patch('/machine/container/use', { id, type })
+        const { message } = response.data
+
+        this.successMessage = message
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'isAxiosError' in error) {
+          const axiosError = error as AxiosErrorResponse
+
+          if (axiosError.isAxiosError) {
+            const errorResponse = axiosError.response
+
+            this.errorMessage = _.get(
+              errorResponse,
+              'data.message',
+              'Unable to use container. Please try again.',
+            )
+
+            this.errors = _.get(errorResponse, 'data.errors', [])
+
+            return
+          }
+        }
+
+        this.errorMessage = 'An unexpected error occurred. Please try again later.'
+
+        throw error
+      } finally {
+        this.isSettingContainer = false
+      }
+    },
+
+    clearAlerts(): void {
+      this.infoMessage = null
+      this.info = {}
+
+      this.successMessage = null
+      this.details = []
+
+      this.errorMessage = null
+      this.errors = []
+    },
+  },
+
+  getters: {
+    coffeeContainerInuse(): Container | undefined {
+      return _.find(this.containers, { type: 'coffee' })
+    },
+    waterContainerInuse(): Container | undefined {
+      return _.find(this.containers, { type: 'water' })
     },
   },
 })
