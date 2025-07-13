@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { useMachineStore } from '@/stores/machine'
 import { computed } from 'vue'
 

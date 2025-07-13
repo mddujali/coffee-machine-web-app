@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import MenuButton from '@/components/MenuButton.vue'
 
 const items = [
