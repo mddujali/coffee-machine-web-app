@@ -17,6 +17,6 @@ const type = 'water'
   </div>
 
   <div class="row">
-    <RefillContainerField />
+    <RefillContainerField :type />
   </div>
 </template>

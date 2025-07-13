@@ -12,6 +12,7 @@ export const useMachineStore = defineStore('machine', {
     isCheckingStatus: false,
     isBrewingCoffee: false,
     isSettingContainer: false,
+    isRefilling: false,
     recipes: [],
     containers: [],
     infoMessage: null,
@@ -133,6 +134,45 @@ export const useMachineStore = defineStore('machine', {
         throw error
       } finally {
         this.isSettingContainer = false
+      }
+    },
+
+    async refillContainer(type: string, quantity: number) {
+      this.isRefilling = true
+
+      this.clearAlerts()
+
+      try {
+        const response = await api.patch('/machine/container/refill', { type, quantity })
+        const { message } = response.data
+
+        this.successMessage = message
+
+        return response
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'isAxiosError' in error) {
+          const axiosError = error as AxiosErrorResponse
+
+          if (axiosError.isAxiosError) {
+            const errorResponse = axiosError.response
+
+            this.errorMessage = _.get(
+              errorResponse,
+              'data.message',
+              'Unable to refill container. Please try again.',
+            )
+
+            this.errors = _.get(errorResponse, 'data.errors', [])
+
+            return
+          }
+        }
+
+        this.errorMessage = 'An unexpected error occurred. Please try again later.'
+
+        throw error
+      } finally {
+        this.isRefilling = false
       }
     },
 
