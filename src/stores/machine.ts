@@ -4,6 +4,7 @@ import _ from 'lodash'
 import type { MachineState } from '@/types/MachineState.ts'
 import type { MachineStatusResponseData } from '@/types/MachineStatusResponseData.ts'
 import type { BrewCoffeeResponseData } from '@/types/BrewCoffeeResponseData.ts'
+import type { AxiosResponse } from 'axios'
 import type { AxiosErrorResponse } from '@/types/AxiosErrorResponse.ts'
 import type { Container } from '@/types/Container.ts'
 
@@ -24,7 +25,7 @@ export const useMachineStore = defineStore('machine', {
   }),
 
   actions: {
-    async checkStatus(): Promise<void> {
+    async checkStatus(): Promise<AxiosResponse> {
       this.isCheckingStatus = true
 
       this.clearAlerts()
@@ -32,6 +33,7 @@ export const useMachineStore = defineStore('machine', {
       try {
         const response = await api.get('/machine/status')
         const { data }: { data: MachineStatusResponseData } = response
+        const { message }: { message: string } = data
 
         this.recipes = data.data.recipes
         this.containers = data.data.containers
@@ -49,13 +51,15 @@ export const useMachineStore = defineStore('machine', {
         const coffeeInfo = containerInfo('coffee')
         const waterInfo = containerInfo('water')
 
-        this.infoMessage = data.message
+        this.infoMessage = message
         this.info = {
           coffee: [
             `There are ${coffeeInfo.quantity}${coffeeInfo.unitLabel} in the coffee container.`,
           ],
           water: [`There are ${waterInfo.quantity}${waterInfo.unitLabel} in the water container.`],
         }
+
+        return response
       } catch (error: unknown) {
         throw error
       } finally {
@@ -63,7 +67,7 @@ export const useMachineStore = defineStore('machine', {
       }
     },
 
-    async brewCoffee(type: string): Promise<void> {
+    async brewCoffee(type: string): Promise<AxiosResponse> {
       this.isBrewingCoffee = true
 
       this.clearAlerts()
@@ -71,8 +75,11 @@ export const useMachineStore = defineStore('machine', {
       try {
         const response = await api.post('/machine/brew-coffee', { type })
         const { data }: { data: BrewCoffeeResponseData } = response
+        const { message }: { message: string } = data
 
-        this.successMessage = data.message
+        this.successMessage = message
+
+        return response
       } catch (error: unknown) {
         if (error && typeof error === 'object' && 'isAxiosError' in error) {
           const axiosError = error as AxiosErrorResponse
@@ -87,12 +94,10 @@ export const useMachineStore = defineStore('machine', {
             )
 
             this.errors = _.get(errorResponse, 'data.errors', [])
-
-            return
           }
+        } else {
+          this.errorMessage = 'An unexpected error occurred. Please try again later.'
         }
-
-        this.errorMessage = 'An unexpected error occurred. Please try again later.'
 
         throw error
       } finally {
@@ -100,16 +105,18 @@ export const useMachineStore = defineStore('machine', {
       }
     },
 
-    async useContainer(id: number, type: string): Promise<void> {
+    async useContainer(id: number, type: string): Promise<AxiosResponse> {
       this.isSettingContainer = true
 
       this.clearAlerts()
 
       try {
         const response = await api.patch('/machine/container/use', { id, type })
-        const { message } = response.data
+        const { message }: { message: string } = response.data
 
         this.successMessage = message
+
+        return response
       } catch (error: unknown) {
         if (error && typeof error === 'object' && 'isAxiosError' in error) {
           const axiosError = error as AxiosErrorResponse
@@ -124,12 +131,10 @@ export const useMachineStore = defineStore('machine', {
             )
 
             this.errors = _.get(errorResponse, 'data.errors', [])
-
-            return
           }
+        } else {
+          this.errorMessage = 'An unexpected error occurred. Please try again later.'
         }
-
-        this.errorMessage = 'An unexpected error occurred. Please try again later.'
 
         throw error
       } finally {
@@ -137,14 +142,14 @@ export const useMachineStore = defineStore('machine', {
       }
     },
 
-    async refillContainer(type: string, quantity: number) {
+    async refillContainer(type: string, quantity: number): Promise<AxiosResponse> {
       this.isRefilling = true
 
       this.clearAlerts()
 
       try {
         const response = await api.patch('/machine/container/refill', { type, quantity })
-        const { message } = response.data
+        const { message }: { message: string } = response.data
 
         this.successMessage = message
 
@@ -163,12 +168,10 @@ export const useMachineStore = defineStore('machine', {
             )
 
             this.errors = _.get(errorResponse, 'data.errors', [])
-
-            return
           }
+        } else {
+          this.errorMessage = 'An unexpected error occurred. Please try again later.'
         }
-
-        this.errorMessage = 'An unexpected error occurred. Please try again later.'
 
         throw error
       } finally {
