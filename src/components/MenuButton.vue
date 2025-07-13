@@ -11,7 +11,10 @@ const props = defineProps<{
 
 const machineStore = useMachineStore()
 
+const isCheckingStatus = computed(() => machineStore.isCheckingStatus)
 const isBrewingCoffee = computed(() => machineStore.isBrewingCoffee)
+const isSettingContainer = computed(() => machineStore.isSettingContainer)
+const isRefilling = computed(() => machineStore.isRefilling)
 
 const handleBrewCoffee = async (): Promise<void> => {
   const type = props.item.key
@@ -29,7 +32,7 @@ const handleBrewCoffee = async (): Promise<void> => {
     type="button"
     class="btn btn-primary btn-lg w-100 py-4"
     @click="handleBrewCoffee()"
-    :disabled="isBrewingCoffee"
+    :disabled="isCheckingStatus || isBrewingCoffee || isSettingContainer || isRefilling"
   >
     {{ item.value }}
   </button>

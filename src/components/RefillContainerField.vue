@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { useMachineStore } from '@/stores/machine.ts'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import _ from 'lodash'
 
 const props = defineProps<{ type: string }>()
 const quantity = ref<number | null>()
 
 const machineStore = useMachineStore()
+
+const isCheckingStatus = computed(() => machineStore.isCheckingStatus)
+const isBrewingCoffee = computed(() => machineStore.isBrewingCoffee)
+const isSettingContainer = computed(() => machineStore.isSettingContainer)
+const isRefilling = computed(() => machineStore.isRefilling)
 
 const containerInuse =
   {
@@ -54,6 +59,7 @@ const handleRefillContainer = async (): Promise<void> => {
       type="button"
       class="btn btn-primary btn-lg w-100 py-4"
       @click="handleRefillContainer()"
+      :disabled="isCheckingStatus || isBrewingCoffee || isSettingContainer || isRefilling"
     >
       Refill
     </button>

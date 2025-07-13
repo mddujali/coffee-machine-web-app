@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import api from '@/api'
 import type { Container } from '@/types/Container.ts'
 import { useMachineStore } from '@/stores/machine.ts'
@@ -10,6 +10,11 @@ const containers = ref<Container[]>()
 const selectedId = ref<number>()
 
 const machineStore = useMachineStore()
+
+const isCheckingStatus = computed(() => machineStore.isCheckingStatus)
+const isBrewingCoffee = computed(() => machineStore.isBrewingCoffee)
+const isSettingContainer = computed(() => machineStore.isSettingContainer)
+const isRefilling = computed(() => machineStore.isRefilling)
 
 const containerInuse =
   {
@@ -54,7 +59,12 @@ const handleUseContainer = async (): Promise<void> => {
   </div>
 
   <div class="col-4">
-    <button type="button" class="btn btn-primary btn-lg w-100 py-4" @click="handleUseContainer()">
+    <button
+      type="button"
+      class="btn btn-primary btn-lg w-100 py-4"
+      @click="handleUseContainer()"
+      :disabled="isCheckingStatus || isBrewingCoffee || isSettingContainer || isRefilling"
+    >
       Use
     </button>
   </div>
