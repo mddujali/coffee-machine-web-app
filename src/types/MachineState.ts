@@ -6,4 +6,5 @@ export interface MachineState {
   isBrewingCoffee: boolean
   recipes: Recipe[]
   containers: Container[]
+  infoMessage: string | null
 }

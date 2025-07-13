@@ -10,6 +10,7 @@ export const useMachineStore = defineStore('machine', {
     isBrewingCoffee: false,
     recipes: [],
     containers: [],
+    infoMessage: null,
   }),
 
   actions: {
@@ -22,6 +23,7 @@ export const useMachineStore = defineStore('machine', {
 
         this.recipes = data.data.recipes
         this.containers = data.data.containers
+        this.infoMessage = data.message
       } catch (error: unknown) {
         throw error
       } finally {
