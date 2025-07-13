@@ -7,4 +7,6 @@ export interface MachineState {
   recipes: Recipe[]
   containers: Container[]
   infoMessage: string | null
+  errorMessage: string | null
+  errors: Array<never>
 }

@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
 import api from '@/api'
+import _ from 'lodash'
 import type { MachineState } from '@/types/MachineState.ts'
 import type { MachineStatusResponseData } from '@/types/MachineStatusResponseData.ts'
 import type { BrewCoffeeResponseData } from '@/types/BrewCoffeeResponseData.ts'
+import type { AxiosErrorResponse } from '@/types/AxiosErrorResponse.ts'
 
 export const useMachineStore = defineStore('machine', {
   state: (): MachineState => ({
@@ -11,11 +13,17 @@ export const useMachineStore = defineStore('machine', {
     recipes: [],
     containers: [],
     infoMessage: null,
+    errorMessage: null,
+    errors: [],
   }),
 
   actions: {
     async checkStatus(): Promise<void> {
       this.isCheckingStatus = true
+
+      this.infoMessage = null
+      this.errorMessage = null
+      this.errors = []
 
       try {
         const response = await api.get('/machine/status')
@@ -40,6 +48,26 @@ export const useMachineStore = defineStore('machine', {
 
         console.log(data)
       } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'isAxiosError' in error) {
+          const axiosError = error as AxiosErrorResponse
+
+          if (axiosError.isAxiosError) {
+            const errorResponse = axiosError.response
+
+            this.errorMessage = _.get(
+              errorResponse,
+              'data.message',
+              'Unable to brew coffee. Please try again.',
+            )
+
+            this.errors = _.get(errorResponse, 'data.errors', [])
+
+            return
+          }
+        }
+
+        this.errorMessage = 'An unexpected error occurred. Please try again later.'
+
         throw error
       } finally {
         this.isBrewingCoffee = false

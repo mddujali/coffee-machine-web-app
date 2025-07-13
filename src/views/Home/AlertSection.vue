@@ -4,6 +4,8 @@ import { computed } from 'vue'
 
 const machineStore = useMachineStore()
 const infoMessage = computed(() => machineStore.infoMessage)
+const errorMessage = computed(() => machineStore.errorMessage)
+const errors = computed(() => machineStore.errors)
 </script>
 
 <template>
@@ -16,8 +18,16 @@ const infoMessage = computed(() => machineStore.infoMessage)
     <!--      Lorem ipsum dolor sit amet, consectetur adipiscing elit.-->
     <!--    </div>-->
 
-    <!--    <div class="alert alert-danger fade show" role="alert">-->
-    <!--      Lorem ipsum dolor sit amet, consectetur adipiscing elit.-->
-    <!--    </div>-->
+    <div class="alert alert-danger fade show" role="alert" v-if="errorMessage">
+      {{ errorMessage }}
+
+      <ul class="mb-0">
+        <template v-for="(item, index) in errors" :key="index">
+          <li v-for="(value, key) in item" :key>
+            {{ value }}
+          </li>
+        </template>
+      </ul>
+    </div>
   </div>
 </template>
